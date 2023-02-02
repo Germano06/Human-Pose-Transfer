@@ -1,19 +1,20 @@
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import json
 
 import matplotlib
 import numpy as np
-from skimage.draw import circle, line_aa, polygon
+from skimage.draw import ellipse, line_aa, polygon
 
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 LIMB_SEQ = [[1, 2], [1, 5], [2, 3], [3, 4], [5, 6], [6, 7], [1, 8], [8, 9],
             [9, 10], [1, 11], [11, 12], [12, 13], [1, 0], [0, 14], [14, 16],
             [0, 15], [15, 17], [2, 16], [5, 17]]
 
 COLORS = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0], [0, 255, 0],
-          [0, 255, 85], [0, 255, 170], [0, 255, 255], [0, 170, 255], [0, 85, 255], [0, 0, 255], [85, 0, 255],
+          [0, 255, 85], [0, 255, 170], [0, 255, 255], [
+              0, 170, 255], [0, 85, 255], [0, 0, 255], [85, 0, 255],
           [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85]]
 
 LABELS = ['nose', 'neck', 'Rsho', 'Relb', 'Rwri', 'Lsho', 'Lelb', 'Lwri',
@@ -51,7 +52,8 @@ def cords_to_map(cords, img_size, sigma=6):
         if point[0] == MISSING_VALUE or point[1] == MISSING_VALUE:
             continue
         xx, yy = np.meshgrid(np.arange(img_size[1]), np.arange(img_size[0]))
-        result[..., i] = np.exp(-((yy - point[0]) ** 2 + (xx - point[1]) ** 2) / (2 * sigma ** 2))
+        result[..., i] = np.exp(-((yy - point[0]) **
+                                2 + (xx - point[1]) ** 2) / (2 * sigma ** 2))
     return result
 
 
@@ -65,14 +67,15 @@ def draw_pose_from_cords(pose_joints, img_size, radius=2, draw_joints=True):
             to_missing = pose_joints[t][0] == MISSING_VALUE or pose_joints[t][1] == MISSING_VALUE
             if from_missing or to_missing:
                 continue
-            yy, xx, val = line_aa(pose_joints[f][0], pose_joints[f][1], pose_joints[t][0], pose_joints[t][1])
+            yy, xx, val = line_aa(
+                pose_joints[f][0], pose_joints[f][1], pose_joints[t][0], pose_joints[t][1])
             colors[yy, xx] = np.expand_dims(val, 1) * 255
             mask[yy, xx] = True
 
     for i, joint in enumerate(pose_joints):
         if pose_joints[i][0] == MISSING_VALUE or pose_joints[i][1] == MISSING_VALUE:
             continue
-        yy, xx = circle(joint[0], joint[1], radius=radius, shape=img_size)
+        yy, xx = ellipse(joint[0], joint[1], r_radius=radius, c_radius=radius, shape=img_size)
         colors[yy, xx] = COLORS[i]
         mask[yy, xx] = True
 
@@ -100,8 +103,10 @@ def mean_inputation(X):
 
 
 def draw_legend():
-    handles = [mpatches.Patch(color=np.array(color) / 255.0, label=name) for color, name in zip(COLORS, LABELS)]
-    plt.legend(handles=handles, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    handles = [mpatches.Patch(color=np.array(color) / 255.0, label=name)
+               for color, name in zip(COLORS, LABELS)]
+    plt.legend(handles=handles, bbox_to_anchor=(
+        1.05, 1), loc=2, borderaxespad=0.)
 
 
 def produce_ma_mask(kp_array, img_size, point_radius=4):
@@ -133,7 +138,7 @@ def produce_ma_mask(kp_array, img_size, point_radius=4):
     for i, joint in enumerate(kp_array):
         if kp_array[i][0] == MISSING_VALUE or kp_array[i][1] == MISSING_VALUE:
             continue
-        yy, xx = circle(joint[0], joint[1], radius=point_radius, shape=img_size)
+        yy, xx = ellipse(joint[0], joint[1], r_radius=point_radius, c_radius=point_radius, shape=img_size)
         mask[yy, xx] = True
 
     mask = dilation(mask, square(5))
@@ -150,11 +155,13 @@ if __name__ == "__main__":
     df = pd.read_csv('data/market-annotation-train.csv', sep=':')
 
     for index, row in df.iterrows():
-        pose_cords = load_pose_cords_from_strings(row['keypoints_y'], row['keypoints_x'])
+        pose_cords = load_pose_cords_from_strings(
+            row['keypoints_y'], row['keypoints_x'])
 
         colors, mask = draw_pose_from_cords(pose_cords, (128, 64))
 
-        mmm = produce_ma_mask(pose_cords, (128, 64)).astype(float)[..., np.newaxis].repeat(3, axis=-1)
+        mmm = produce_ma_mask(pose_cords, (128, 64)).astype(
+            float)[..., np.newaxis].repeat(3, axis=-1)
         # print mmm.shape
         print(mmm.shape)
         img = imread('data/market-dataset/train/' + row['name'])

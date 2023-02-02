@@ -6,7 +6,7 @@ import os
 from argparse import ArgumentParser
 
 import numpy as np
-from skimage.draw import circle
+from skimage.draw import ellipse
 from skimage.morphology import square, dilation, erosion
 
 # default value when HPM detect failed
@@ -48,7 +48,7 @@ def key_point_to_mask(key_points, img_size, radius=6):
     for i, joint in enumerate(list(key_points) + new_points):
         if KEY_POINT_MISSING_VALUE in joint:
             continue
-        yy, xx = circle(joint[0], joint[1], radius=radius, shape=img_size)
+        yy, xx = ellipse(joint[0], joint[1], r_radius=radius, c_radius=radius, shape=img_size)
         mask[yy, xx] = True
     mask = dilation(mask, square(radius + 3))
     mask = erosion(mask, square(radius + 3))

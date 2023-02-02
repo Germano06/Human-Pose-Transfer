@@ -7,13 +7,13 @@ first try
 [dataset]
     name = "market"
     [dataset.path.train]
-        image = "/data/Market-1501-v15.09.15/bounding_box_train/"
+        image = "/data/market/train/"
         bone = "./data/market/train/pose_map_image/"
         mask = "./data/market/train/pose_mask_image/"
         pair = "./data/market/pairs-train.csv"
         annotation = "./data/market/annotation-train.csv"
     [dataset.path.test]
-        image = "/data/Market-1501-v15.09.15/bounding_box_test/"
+        image = "/data/market/test/"
         bone = "./data/market/test/pose_map_image/"
         mask = "./data/market/test/pose_mask_image/"
         pair = "./data/market/pairs-test.csv"
